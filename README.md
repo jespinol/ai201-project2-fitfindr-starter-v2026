@@ -41,7 +41,7 @@
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
 
-
+FitFindr lets a user describe a clothing item they want, with an optional size and price limit. It searches the sample listings and uses the first match to suggest outfits with the user's saved wardrobe. It then writes a short caption with the item, price, and platform. If nothing matches, it stops and suggests changing the search words, size, or budget.
 
 ---
 
@@ -237,15 +237,15 @@ Here are a couple of styling ideas for your new vintage-style graphic tee:
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked the AI to help write the three tool specs before building them.
+- *What came back:* It mixed a long explanation of search behavior into the input and output descriptions.
+- *What I changed:* I asked it to shorten those sections to the input types and return values, and to separate invariants from behavior specs.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked the AI to help build the tools.
+- *What came back:* It generated the code and ran both a matching query and an empty search.
+- *What I changed:* It generated complete functions that appeared to behave as expected. I conducted a series of tests for expected behaviors and edge cases. I did not need to change anything since it worked as expected. But I did ask to refactor a block of code that appeared to be repetitive.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
