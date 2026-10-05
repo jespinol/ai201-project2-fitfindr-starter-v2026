@@ -47,6 +47,8 @@
 
 ## Tool Inventory
 
+Milestone 1 data review: I read listings `lst_001` through `lst_006`. Listing fields are `id`, `title`, `description`, `category`, `style_tags`, `size`, `condition`, `price`, `colors`, `brand`, and `platform`. Sizes are strings such as `S/M`, `W30 L30`, and `XL (oversized)`, and `brand` can be null. A wardrobe contains an `items` list. Each item has `id`, `name`, `category`, `colors`, `style_tags`, and `notes`. Notes can be null. An empty wardrobe has `"items": []`.
+
 <!-- Four lines per tool. This is worth 2 points and it's the single most
      common place students lose them.
 
@@ -104,6 +106,16 @@
 ---
 
 ## Sample Run
+
+### Milestone 1: starter check (before implementation)
+
+```
+$ .venv/bin/python app.py ask 'vintage graphic tee under $30'
+
+  The planning loop isn't built yet — see the TODO in agent.py.
+
+0 model calls this session
+```
 
 <!-- Two things go here.
 
