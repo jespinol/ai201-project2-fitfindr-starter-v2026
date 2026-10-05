@@ -61,24 +61,26 @@ Milestone 1 data review: I read listings `lst_001` through `lst_006`. Listing fi
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Loads listings using utils/data_loader.py::load_listings and finds items that match the description, size, and price limit.
+- **Inputs:** description (str), size (str or None), and max_price (float or None). None means no filter for that field.
+- **Returns:** A list of matching listing dicts, best match first. Each has id, title, description, category, style_tags, size, condition, price, colors, brand, and platform.
+- **When it has nothing:** Returns an empty list, [].
+
+Size matching uses whole size values: M matches S/M, L does not match XL, 8 matches US 8 but not US 8.5, and W30 matches W30 L30.
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Uses generate.py::generate to suggest one or two ways to wear the new item with clothes the user owns.
+- **Inputs:** new_item (listing dict) and wardrobe (dict with an items list).
+- **Returns:** A string describing one or two outfits using the new item and clothes from the wardrobe.
+- **When it has nothing:** If the wardrobe has an empty items list, returns general styling advice instead.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Uses generate.py::generate to write a short caption about the item and outfit.
+- **Inputs:** outfit (str) and new_item (listing dict).
+- **Returns:** A string containing a two-to-four sentence caption that mentions the item, price, and platform.
+- **When it has nothing:** If outfit is empty or only whitespace, returns "Cannot create a fit card without an outfit suggestion." without calling the model.
 
 ---
 
@@ -95,7 +97,7 @@ Milestone 1 data review: I read listings `lst_001` through `lst_006`. Listing fi
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns [], put a message in session["error"] suggesting different search words, a different size, or a higher price limit, then stop. Do not call the other two tools. Otherwise, save the first result in session["selected_item"]. Read that item and the wardrobe from the session to call suggest_outfit, then save its answer in session["outfit_suggestion"]. Read the outfit and item from the session to call create_fit_card, and save the caption in session["fit_card"]. This is the plan; the loop will be built in Milestone 5.
 
 **Where it lives:** `agent.py::run_agent`
 
