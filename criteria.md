@@ -29,6 +29,8 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
 
+Search uses keyword matching, so some ways of describing an item may miss it. Allow one miss, less than four completed runs would mean the main path is too unreliable.
+
 ---
 
 ## 2. An impossible query stops before the second tool
@@ -40,9 +42,11 @@ Given a query that matches no listings, the agent stops before calling
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
+This branch checks an empty list and does not need the model. It should work every time. Continuing without an item would give the next tool nothing to work with.
+
 ---
 
-## 3. Something about state
+## 3. The selected item reaches the next tool unchanged
 
 <!-- YOU WRITE THIS ONE.
 
@@ -53,16 +57,15 @@ Given a query that matches no listings, the agent stops before calling
      look like state failure — it looks like a tool problem. Something that
      compares session["selected_item"] against what actually reached
      suggest_outfit is the shape you're after. -->
-
-
+When search finds a match, the first item it returns must be saved in session["selected_item"] and passed to suggest_outfit without changing any of its fields, in 5 of 5 tries.
 
 **Why this target:**
 
-
+Moving an item through the session does not depend on model wording. So require five matches because even one changed item could produce an outfit for the wrong listing.
 
 ---
 
-## 4. Something about the fit card
+## 4. The fit card includes the listing details
 
 <!-- YOU WRITE THIS ONE.
 
@@ -74,16 +77,15 @@ Given a query that matches no listings, the agent stops before calling
      mentions the price? Two different items producing the same opening
      sentence? A card longer than a caption anyone would post? Any of those can
      be turned into a number. -->
-
-
+In at least 4 of 5 tries, for a non-empty outfit suggestion and a valid listing, create_fit_card returns a caption containing the listing's title, price as a dollar amount, and platform, using a case-insensitive comparison for text. Equivalent price formats such as $24 and $24.00 both count.
 
 **Why this target:**
 
-
+The model can vary the wording, but the item, cost, and platform are needed to identify the find. Allow one miss because the caption is generated, but more than one would make these details unreliable.
 
 ---
 
-## 5. Your choice
+## 5. Search respects the price limit
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -91,12 +93,11 @@ Given a query that matches no listings, the agent stops before calling
      wardrobe path, what happens when the model can't be reached, whether the
      search respects a price ceiling — anything, as long as it names a number
      or an observable outcome. -->
-
-
+For a description and size known to match at least one listing at or below max_price, search_listings returns a non-empty list and every returned listing has price less than or equal to max_price for all tries.
 
 **Why this target:**
 
-
+Price filtering compares numbers already in the listings, so it should work every single time. Requiring a non-empty result also prevents a search that always returns empty from passing the criteria.
 
 ---
 
