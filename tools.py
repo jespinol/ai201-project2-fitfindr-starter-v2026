@@ -21,7 +21,10 @@ the description has to say what is *in* the list.
 """
 
 import config  # noqa: F401 — you'll use this in search_listings
-from generate import generate
+from generate import generate, ModelUnavailable
+import json
+import re
+import config
 from utils.data_loader import load_listings
 
 
@@ -78,8 +81,31 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    keywords = set(re.findall(r"\w+", description.casefold()))
+    if not keywords:
+        return []
+
+    matches = []
+    for listing in load_listings():
+        if max_price is not None and listing["price"] > max_price:
+            continue
+        if size is not None:
+            listing_size = re.sub(r"\([^)]*\)", "", listing["size"]).strip().casefold()
+            wanted_size = size.strip().casefold()
+            size_parts = set(re.findall(r"[a-z]+\d+(?:\.\d+)?|[a-z]+|\d+(?:\.\d+)?", listing_size))
+            if wanted_size != listing_size and wanted_size not in size_parts:
+                continue
+
+        searchable = " ".join(
+            [listing["title"], listing["description"], *listing["style_tags"]]
+        )
+        words = set(re.findall(r"\w+", searchable.casefold()))
+        score = len(keywords & words)
+        if score:
+            matches.append((score, listing))
+
+    matches.sort(key=lambda match: match[0], reverse=True)
+    return [listing for _, listing in matches[:config.SEARCH_RESULT_LIMIT]]
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -112,8 +138,26 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    items = wardrobe["items"]
+    if items:
+        instruction = (
+            "Suggest one or two outfits using the new item and only clothes in "
+            "the supplied wardrobe. Name the pieces used. Do not invent owned clothes."
+        )
+    else:
+        instruction = (
+            "The user has no saved wardrobe. Suggest one or two general styling "
+            "ideas for the new item. Describe pairings as ideas, not clothes "
+            "the user already owns."
+        )
+    prompt = (
+        f"New item:\n{json.dumps(new_item)}\n"
+        f"Wardrobe items:\n{json.dumps(items)}"
+    )
+    response = generate(prompt, system=instruction)
+    if not response.strip():
+        raise ModelUnavailable("The model returned no outfit suggestion. Try again.")
+    return response
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -152,5 +196,23 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    if not outfit.strip():
+        return "Cannot create a fit card without an outfit suggestion."
+
+    prompt = (
+        f"New item:\n{json.dumps(new_item)}\n"
+        f"Price: ${new_item['price']:.2f}\n"
+        f"Outfit suggestion:\n{outfit}"
+    )
+    response = generate(
+        prompt,
+        system=(
+            "Write only a two-to-four sentence social-post caption in a natural "
+            "voice. Include the exact listing title, its dollar price, and its "
+            "platform once each. Describe the outfit's vibe. Do not invent "
+            "listing details or a brand when the brand is null."
+        ),
+    )
+    if not response.strip():
+        raise ModelUnavailable("The model returned no fit card. Try again.")
+    return response

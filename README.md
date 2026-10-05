@@ -134,18 +134,62 @@ $ python app.py ask '...'
 **The three tools, tested one at a time**
 
 ```
-$ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
-
+$ .venv/bin/python -c "from tools import search_listings; print(search_listings('graphic tee', size='L', max_price=30))"
+[{'id': 'lst_006', 'title': 'Graphic Tee — 2003 Tour Bootleg Style', 'description': 'Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.', 'category': 'tops', 'style_tags': ['graphic tee', 'vintage', 'grunge', 'streetwear', 'band tee'], 'size': 'L', 'condition': 'good', 'price': 24.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_033', 'title': 'Vintage Band Tee — Faded Grey', 'description': 'Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'band tee', 'graphic tee', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 19.0, 'colors': ['grey', 'charcoal'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_015', 'title': 'Vintage Graphic Hoodie — Faded Black', 'description': 'Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'graphic', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 26.0, 'colors': ['black', 'charcoal'], 'brand': None, 'platform': 'depop'}]
 ```
 
 ```
-$ python -c "from tools import suggest_outfit; ..."
+$ .venv/bin/python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[5], get_example_wardrobe()))"
+Here are two outfits featuring the new Graphic Tee and pieces from your wardrobe:
 
+### Outfit 1: Grunge Streetwear
+Lean into the vintage, worn-in aesthetic of the tee with dark denim and chunky boots.
+* **Top:** Graphic Tee — 2003 Tour Bootleg Style
+* **Outerwear:** Vintage black denim jacket
+* **Bottoms:** Baggy straight-leg jeans, dark wash
+* **Shoes:** Black combat boots
+* **Accessory:** Black crossbody bag
+
+### Outfit 2: Casual Y2K Contrast
+Pair the boxy black tee with lighter earth tones for a casual, textured look, finished off with classic streetwear sneakers.
+* **Top:** Graphic Tee — 2003 Tour Bootleg Style
+* **Bottoms:** Wide-leg khaki trousers
+* **Accessory:** Brown leather belt
+* **Shoes:** Chunky white sneakers
 ```
 
 ```
-$ python -c "from tools import create_fit_card; ..."
+$ AI201_CACHE=0 .venv/bin/python -c "from tools import create_fit_card; from utils.data_loader import load_listings; item = load_listings()[5]; [print(f'Run {i + 1}: {create_fit_card(\"dark wash jeans and chunky white sneakers\", item)}') for i in range(3)]"
+Run 1: Channeling that ultimate effortless grunge energy with this Graphic Tee — 2003 Tour Bootleg Style. It has the best worn-in feel and looks so cool paired with dark wash jeans and chunky white sneakers. Grab it on depop for $24.00 before it's gone!
+Run 2: Pair this Graphic Tee — 2003 Tour Bootleg Style with dark wash jeans and chunky white sneakers for the ultimate grunge streetwear look. Grab it now for $24.00 over on Depop!
+Run 3: Channeling serious effortless grunge energy with this Graphic Tee — 2003 Tour Bootleg Style. Pair it with dark wash jeans and chunky white sneakers for the ultimate off-duty look. Snag this worn-in favorite for just $24.00 live on my Depop right now!
+```
 
+The three captions used the same input with caching off and had different wording. They included the item, price, and platform, but sounded more like sales posts than personal outfit posts.
+
+**Empty cases**
+
+```
+$ .venv/bin/python -c "from tools import search_listings; print(search_listings('designer ballgown', size='XXS', max_price=5))"
+[]
+
+$ .venv/bin/python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('   ', load_listings()[5]))"
+Cannot create a fit card without an outfit suggestion.
+```
+
+```
+$ .venv/bin/python -c "from tools import suggest_outfit; from utils.data_loader import get_empty_wardrobe, load_listings; print(suggest_outfit(load_listings()[5], get_empty_wardrobe()))"
+Here are a couple of styling ideas for your new vintage-style graphic tee:
+
+**1. 90s Grunge Casual**
+*   **Bottoms:** Distressed light-wash blue jeans with a relaxed or straight-leg fit.
+*   **Footwear:** Scuffed black canvas sneakers or chunky lace-up combat boots.
+*   **Layering:** An oversized plaid flannel shirt worn open over the tee, or tied casually around the waist. 
+
+**2. Elevated Streetwear**
+*   **Bottoms:** Pleated black wide-leg trousers or utilitarian cargo pants.
+*   **Footwear:** Retro-style leather sneakers (like worn-in runners).
+*   **Accessories:** A silver chain necklace, a canvas crossbody bag, and a beanie to lean into the effortless, edgy aesthetic.
 ```
 
 ---
