@@ -101,9 +101,9 @@ Size matching uses whole size values: M matches S/M, L does not match XL, 8 matc
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** Regex extracts the size and price limit, then removes them from the search description. No model call is used for parsing.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** parsed holds the search inputs, search_results holds the matching listings, and selected_item holds the first match. suggest_outfit reads selected_item and wardrobe from the session and saves its output in outfit_suggestion. create_fit_card reads outfit_suggestion and selected_item and saves its output in fit_card.
 
 ---
 
@@ -127,9 +127,41 @@ $ .venv/bin/python app.py ask 'vintage graphic tee under $30'
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ .venv/bin/python app.py ask 'vintage graphic tee under $30'
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Here are two outfit suggestions using the new Y2K baby tee and items exclusively from your wardrobe:
+
+### Outfit 1: Y2K Streetwear Vibe
+Lean into the early 2000s aesthetic by pairing the fitted graphic tee with baggy denim and chunky sneakers.
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Baggy straight-leg jeans, dark wash (w_001)
+* **Shoes:** Chunky white sneakers (w_007)
+* **Accessories:** Black crossbody bag (w_010)
+
+### Outfit 2: Casual Earth-Tone Mix
+Balance the pink and purple butterfly graphic with relaxed tan trousers and a vintage jacket for a retro-casual look.
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Wide-leg khaki trousers (w_002)
+* **Outerwear:** Vintage black denim jacket (w_006)
+* **Shoes:** Chunky white sneakers (w_007)
+* **Accessories:** Brown leather belt (w_009)
+
+  Fit card: Channel total early 2000s nostalgia with this super cute Y2K Baby Tee — Butterfly Print, featuring a fitted cropped fit and dreamy pastel graphics. It has a playful retro-casual vibe that looks effortless paired with baggy denim or wide-leg trousers. Grab it now on depop for just $18.00!
+
+2 model calls this session, 1198 prompt + 306 output tokens
+```
 
 ```
+$ .venv/bin/python app.py ask 'designer ballgown size XXS under $5'
+
+  No listings matched. Try different search words, a different size, or a higher price limit.
+
+0 model calls this session
+```
+
+I printed the completed session and checked that the selected item was the first search result and the same item passed to suggest_outfit. The empty-search path left fit_card as None and skipped both model tools.
 
 **The three tools, tested one at a time**
 

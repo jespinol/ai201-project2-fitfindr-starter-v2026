@@ -15,6 +15,7 @@ Build and test your three tools in `tools.py` first. Then come here.
 
 import config
 import trace
+import re
 from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 
@@ -107,8 +108,57 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     """
     session = new_session(query, wardrobe)
 
-    # TODO: delete these two lines and build the loop.
-    session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
+    description = query
+    price_match = re.search(
+        r"\b(?:under|below|up to|at most)\s*\$?\s*(\d+(?:\.\d+)?)\b",
+        description,
+        re.IGNORECASE,
+    )
+    max_price = float(price_match.group(1)) if price_match else None
+    if price_match:
+        description = description[:price_match.start()] + description[price_match.end():]
+    size_match = re.search(
+        r"\b(?:in\s+)?size\s+((?:one\s+size)|(?:US\s*)?\d+(?:\.\d+)?|"
+        r"W\d+(?:\s+L\d+)?|(?:XXS|XS|S|M|L|XL|XXL)(?:/(?:XXS|XS|S|M|L|XL|XXL))?)\b",
+        description,
+        re.IGNORECASE,
+    )
+    size = size_match.group(1).strip() if size_match else None
+    if size_match:
+        description = description[:size_match.start()] + description[size_match.end():]
+    description = re.sub(
+        r"^\s*(?:looking for|find me|find|show me|a|an)\b\s*",
+        "",
+        description,
+        flags=re.IGNORECASE,
+    )
+    session["parsed"] = {
+        "description": " ".join(description.strip(" ,").split()),
+        "size": size,
+        "max_price": max_price,
+    }
+
+    for count, tool_name in enumerate(
+        ("search_listings", "suggest_outfit", "create_fit_card"), start=1
+    ):
+        trace.check_iterations(count)
+        if tool_name == "search_listings":
+            session["search_results"] = search_listings(**session["parsed"])
+            if not session["search_results"]:
+                session["error"] = (
+                    "No listings matched. Try different search words, a different "
+                    "size, or a higher price limit."
+                )
+                return session
+            session["selected_item"] = session["search_results"][0]
+        elif tool_name == "suggest_outfit":
+            session["outfit_suggestion"] = suggest_outfit(
+                session["selected_item"], session["wardrobe"]
+            )
+        else:
+            session["fit_card"] = create_fit_card(
+                session["outfit_suggestion"], session["selected_item"]
+            )
     return session
 
 
