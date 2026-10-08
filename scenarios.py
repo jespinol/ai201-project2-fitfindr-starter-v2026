@@ -30,23 +30,25 @@ SCENARIOS = [
     },
     {
         # A user with nothing saved. One of unit 4's three failure modes.
-        "name": "empty wardrobe",
-        "query": "denim jacket under $50",
-        "wardrobe": "empty",
-        "criterion": None,
+        "name": "selected graphic tee reaches outfit tool",
+        "query": "2003 tour bootleg graphic tee size L under $24",
+        "wardrobe": "example",
+        "criterion": 3,
     },
-    # TODO: add what your criteria 3, 4 and 5 need.
-    #
-    # Set "criterion" to the number in criteria.md that the scenario tests.
-    # "criterion": None means a diagnostic run — useful to have, but it isn't
-    # one of your five, and run_eval.py marks it as such in the table.
-    #
-    # For a state criterion, any normal query works — what you're checking is
-    # what ends up in the session, not what the user typed.
-    #
-    # For a fit-card criterion, you probably want the SAME query listed more
-    # than once, or several different items, depending on what your criterion
-    # actually says.
+    {
+        # The same listing is used for each try. Criterion 4.
+        "name": "fit card includes listing details",
+        "query": "2003 tour bootleg graphic tee size L under $24",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # A known listing is within the requested limit. Criterion 5.
+        "name": "search stays within price limit",
+        "query": "2003 tour bootleg graphic tee size L under $24",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
 ]
 
 WARDROBES = ("example", "empty")

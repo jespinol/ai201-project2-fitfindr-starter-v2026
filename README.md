@@ -267,18 +267,165 @@ Here are a couple of styling ideas for your new vintage-style graphic tee:
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. The selected item reaches the next tool unchanged | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. The fit card includes the listing details | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Search respects the price limit | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
-**Real output from one try**, pasted as text, naming the file and function
-that produced it:
+Real output from one try
 
-```
+Source: results/run_2026-10-07_1836_before.md; run_eval.py::run_once; agent.py::run_agent
 
-```
+Criterion 1 — Try 1
+- Query: vintage graphic tee under $30
+- Wardrobe: example
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 10
+Outfit suggestion:
+Here are two outfit suggestions using the new Y2K baby tee and items exclusively from your wardrobe:
+
+### Outfit 1: Y2K Streetwear Vibe
+Lean into the early 2000s aesthetic by pairing the fitted graphic tee with baggy, high-waisted denim for a classic contrast of proportions.
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Baggy straight-leg jeans, dark wash (w_001)
+* **Outerwear:** Vintage black denim jacket (w_006)
+* **Shoes:** Chunky white sneakers (w_007)
+* **Accessories:** Black crossbody bag (w_010)
+
+### Outfit 2: Casual & Earth-Toned Contrast
+Mix the cute, girly butterfly print of the baby tee with relaxed, minimal trousers and chunky boots for an effortless look that plays on your Y2K and earth-tone style tags.
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Wide-leg khaki trousers (w_002)
+* **Shoes:** Black combat boots (w_008)
+* **Accessories:** Brown leather belt (w_009)
+Fit card:
+Channel pure early 2000s nostalgia with this super cute Y2K Baby Tee — Butterfly Print, featuring a fitted crop and dreamy pastel graphics. It has a total Y2K streetwear vibe that looks amazing paired with baggy denim. Grab it now on depop for just $18.00!
+Trace:
+[1] search_listings (via MCP)
+      in:  description='vintage graphic tee', size=None, max_price=30.0
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[2] suggest_outfit
+      in:  new_item='Y2K Baby Tee — Butterfly Print', wardrobe_items=10
+      out: Here are two outfit suggestions using the new Y2K baby tee and items exclusively from your wardrobe:  ### Outf…
+[3] create_fit_card
+      in:  outfit_suggestion='Here are two outfit suggestions using the new Y2K baby tee and items e', new_item='Y2K Baby…
+      out: Channel pure early 2000s nostalgia with this super cute Y2K Baby Tee — Butterfly Print, featuring a fitted cro…
+
+Criterion 2 — Try 1
+- Query: designer ballgown size XXS under $5
+- Wardrobe: example
+- stopped early: yes — No listings matched. Try different search words, a different size, or a higher price limit.
+- selected_item: (none)
+- search_results: 0
+Trace:
+[1] search_listings (via MCP)
+      in:  description='designer ballgown', size='XXS', max_price=5.0
+      out: [] (empty)
+[2] branch
+      out: [] (empty)
+      →    empty search; stopping before model tools
+
+Criterion 3 — Try 1
+- Query: 2003 tour bootleg graphic tee size L under $24
+- Wardrobe: example
+- stopped early: no
+- selected_item: Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+- search_results: 2
+Outfit suggestion:
+Here are two outfit suggestions using the new Graphic Tee and items exclusively from your wardrobe:
+
+### Outfit 1: Grunge Streetwear Look
+Embrace the vintage, grungy aesthetic of the tee with dark denim and combat boots.
+*   **Top:** Graphic Tee — 2003 Tour Bootleg Style (New item)
+*   **Bottoms:** Baggy straight-leg jeans, dark wash (w_001)
+*   **Outerwear:** Vintage black denim jacket (w_006)
+*   **Shoes:** Black combat boots (w_008)
+*   **Accessories:** Black crossbody bag (w_010)
+
+### Outfit 2: Casual Contrast Look
+Pair the boxy black tee with lighter earth tones for an effortless, balanced streetwear fit.
+*   **Top:** Graphic Tee — 2003 Tour Bootleg Style (New item)
+*   **Bottoms:** Wide-leg khaki trousers (w_002)
+*   **Shoes:** Chunky white sneakers (w_007)
+*   **Accessories:** Brown leather belt (w_009)
+Fit card:
+Channel total grunge vibes with this worn-in Graphic Tee — 2003 Tour Bootleg Style, now available on depop for $24.00. It's got that ultimate boxy fit that looks effortless paired with dark denim and boots.
+Trace:
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey
+[2] suggest_outfit
+      in:  new_item='Graphic Tee — 2003 Tour Bootleg Style', wardrobe_items=10
+      out: Here are two outfit suggestions using the new Graphic Tee and items exclusively from your wardrobe:  ### Outfi…
+[3] create_fit_card
+      in:  outfit_suggestion='Here are two outfit suggestions using the new Graphic Tee and items ex', new_item='Graphic …
+      out: Channel total grunge vibes with this worn-in Graphic Tee — 2003 Tour Bootleg Style, now available on depop for…
+
+Criterion 4 — Try 1
+- Query: 2003 tour bootleg graphic tee size L under $24
+- Wardrobe: example
+- stopped early: no
+- selected_item: Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+- search_results: 2
+Outfit suggestion:
+Here is an outfit using the new Graphic Tee and pieces from your wardrobe:
+
+**Outfit: Grunge Streetwear**
+* **Top:** Graphic Tee — 2003 Tour Bootleg Style (New Item)
+* **Outerwear:** Vintage black denim jacket
+* **Bottoms:** Baggy straight-leg jeans, dark wash
+* **Shoes:** Black combat boots
+* **Accessories:** Black crossbody bag
+Fit card:
+Channeling major grunge streetwear energy with this worn-in, boxy-fit top. I just listed the Graphic Tee — 2003 Tour Bootleg Style for $24.00 on depop. Grab it before it's gone!
+Trace:
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey
+[2] suggest_outfit
+      in:  new_item='Graphic Tee — 2003 Tour Bootleg Style', wardrobe_items=10
+      out: Here is an outfit using the new Graphic Tee and pieces from your wardrobe:  **Outfit: Grunge Streetwear** * **…
+[3] create_fit_card
+      in:  outfit_suggestion='Here is an outfit using the new Graphic Tee and pieces from your wardr', new_item='Graphic …
+      out: Channeling major grunge streetwear energy with this worn-in, boxy-fit top. I just listed the Graphic Tee — 200…
+
+Criterion 5 — Try 1
+- Query: 2003 tour bootleg graphic tee size L under $24
+- Wardrobe: example
+- stopped early: no
+- selected_item: Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+- search_results: 2
+Outfit suggestion:
+Here are two outfits featuring the new Graphic Tee and pieces from your wardrobe:
+
+### Outfit 1: Grunge Streetwear
+Lean into the vintage, worn-in vibe of the tour tee with a full black-and-denim monochrome look finished off with classic boots.
+* **Top:** Graphic Tee — 2003 Tour Bootleg Style
+* **Outerwear:** Vintage black denim jacket
+* **Bottoms:** Baggy straight-leg jeans, dark wash
+* **Shoes:** Black combat boots
+* **Accessories:** Black crossbody bag
+
+### Outfit 2: Casual Contrast
+Pair the boxy black tee with lighter earth tones for a relaxed, casual streetwear fit, accented with a contrasting belt and chunky sneakers.
+* **Top:** Graphic Tee — 2003 Tour Bootleg Style
+* **Bottoms:** Wide-leg khaki trousers
+* **Accessories:** Brown leather belt
+* **Shoes:** Chunky white sneakers
+Fit card:
+Channel major grunge streetwear energy with this vintage-inspired tour tee. Grab the Graphic Tee — 2003 Tour Bootleg Style for $24.00 over on Depop to complete your casual everyday rotation.
+Trace:
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey
+[2] suggest_outfit
+      in:  new_item='Graphic Tee — 2003 Tour Bootleg Style', wardrobe_items=10
+      out: Here are two outfits featuring the new Graphic Tee and pieces from your wardrobe:  ### Outfit 1: Grunge Street…
+[3] create_fit_card
+      in:  outfit_suggestion='Here are two outfits featuring the new Graphic Tee and pieces from you', new_item='Graphic …
+      out: Channel major grunge streetwear energy with this vintage-inspired tour tee. Grab the Graphic Tee — 2003 Tour B…
 
 ---
 
