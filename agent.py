@@ -180,19 +180,19 @@ def run_agent(query: str, wardrobe: dict) -> dict:
                 )
                 trace.step(
                     tool_name,
-                    inputs=(
-                        f"new_item={session['selected_item']['title']!r}, "
-                        f"wardrobe_items={len(session['wardrobe']['items'])}"
-                    ),
+                    inputs={
+                        "new_item": session["selected_item"],
+                        "wardrobe_items": len(session["wardrobe"]["items"]),
+                    },
                     returned=session["error"],
                 )
                 return session
             trace.step(
                 tool_name,
-                inputs=(
-                    f"new_item={session['selected_item']['title']!r}, "
-                    f"wardrobe_items={len(session['wardrobe']['items'])}"
-                ),
+                inputs={
+                    "new_item": session["selected_item"],
+                    "wardrobe_items": len(session["wardrobe"]["items"]),
+                },
                 returned=session["outfit_suggestion"],
             )
         else:

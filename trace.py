@@ -25,6 +25,7 @@ MCP call visible among them. If you moved `search_listings` onto MCP, say so
 in the step name — `search_listings (via MCP)` is enough.
 """
 
+import json
 import config
 
 _lines: list[str] = []
@@ -76,14 +77,23 @@ def _short(value, limit: int = 110) -> str:
             return "[] (empty)"
         head = value[0]
         if isinstance(head, dict) and "title" in head:
-            titles = ", ".join(str(v.get("title", "?")) for v in value[:3])
-            more = f" … +{len(value) - 3} more" if len(value) > 3 else ""
-            return f"{len(value)} items: {titles}{more}"
+            items = ", ".join(
+                f"{item.get('id', '?')} {item.get('title', '?')} "
+                f"(${item.get('price', '?')})"
+                for item in value
+            )
+            return f"{len(value)} items: {items}"
         return f"{len(value)} items: {str(head)[:60]}…"
 
     if isinstance(value, dict):
+        if "new_item" in value and isinstance(value["new_item"], dict):
+            item = json.dumps(value["new_item"], ensure_ascii=False, sort_keys=True)
+            return (
+                f"new_item={item}, "
+                f"wardrobe_items={value.get('wardrobe_items', '?')}"
+            )
         if "title" in value:
-            return f"{value.get('title')} (${value.get('price')}, {value.get('platform')})"
+            return json.dumps(value, ensure_ascii=False, sort_keys=True)
         keys = ", ".join(list(value)[:6])
         return f"dict with keys: {keys}"
 

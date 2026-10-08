@@ -247,6 +247,12 @@ Here are a couple of styling ideas for your new vintage-style graphic tee:
 - *What came back:* It generated the code and ran both a matching query and an empty search.
 - *What I changed:* It generated complete functions that appeared to behave as expected. I conducted a series of tests for expected behaviors and edge cases. I did not need to change anything since it worked as expected. But I did ask to refactor a block of code that appeared to be repetitive.
 
+**Moment 3**
+
+- *What I asked for:* I asked the AI to help assess the five criteria against five tries each and identify what needed improvement.
+- *What came back:* It found all five criteria met and noted the before report did not show every listing price or the full item passed to suggest_outfit.
+- *What I changed:* I changed the trace to show each returned listing's ID, title, and price and the full selected item passed to suggest_outfit, then reran all five scenarios five times.
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
@@ -509,7 +515,7 @@ the API key, the agent said: "Couldn't suggest an outfit because the model is un
 key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com. Check the API key or try
 again."
 
-**On the MCP move:** I registered search_listings in mcp_server.py and changed agent.py::run_agent to call it through mcp_client.call_tool. The server listed the expected inputs, direct and MCP calls returned the same three listing dicts, and the full query completed.
+**On the MCP move:** I registered search_listings in mcp_server.py and changed agent.py::run_agent to call it through mcp_client.call_tool. The server listed the expected inputs, direct and MCP calls returned the same listing dictionaries, and I observed no behavior difference in the full query or evaluation runs.
 
 
 
@@ -524,19 +530,96 @@ again."
 
 **What I changed:**
 
+I changed the trace output so search steps show every returned listing's ID, title, and price, and the suggest_outfit step shows the full listing dictionary passed as new_item.
+
 **Which failure it was meant to fix:**
+
+The before report showed only the number of search results and the selected item's title, so the reader could not check each result price or inspect all fields passed into suggest_outfit. This was a measurement limitation, not a behavioral failure.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. The selected item reaches the next tool unchanged | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. The fit card includes the listing details | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Search respects the price limit | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+
+Real output from Try 1 for each criterion
+
+Source: results/run_2026-10-08_after_terminal.txt
+
+Criterion 1
+matching query completes  (example wardrobe)
+  query: vintage graphic tee under $30
+[1] search_listings (via MCP)
+      in:  description='vintage graphic tee', size=None, max_price=30.0
+      out: 10 items: lst_002 Y2K Baby Tee — Butterfly Print ($18.0), lst_006 Graphic Tee — 2003 Tour Bootleg Style ($24.0), lst_033 Vintage Band Tee — Faded Grey ($19.0), lst_015 Vintage Graphic Hoodie — Faded Black ($26.0), lst_017 Mesh Long-Sleeve Top — Black ($15.0), lst_003 Oversized Flannel Shirt — Plaid Red/Black ($22.0), lst_011 Low-Rise Cargo Pants — Khaki ($27.0), lst_012 Oversized Crewneck Sweatshirt — Vintage Navy ($20.0), lst_013 90s Silk Slip Dress — Floral, Midi Length ($30.0), lst_014 Leather Belt — Brown, Braided ($12.0)
+[2] suggest_outfit
+      in:  new_item={"brand": null, "category": "tops", "colors": ["white", "pink", "purple"], "condition": "excellent", "description": "Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.", "id": "lst_002", "platform": "depop", "price": 18.0, "size": "S/M", "style_tags": ["y2k", "vintage", "graphic tee", "cottagecore"], "title": "Y2K Baby Tee — Butterfly Print"}, wardrobe_items=10
+      out: Here are two outfit ideas using the new Y2K baby tee and items from your wardrobe:  **Outfit 1: Y2K Streetwear…
+[3] create_fit_card
+      in:  outfit_suggestion='Here are two outfit ideas using the new Y2K baby tee and items from yo', new_item='Y2K Baby…
+      out: Channel total early 2000s nostalgia with this Y2K Baby Tee — Butterfly Print, featuring a fitted crop length a…
+  try 1: completed — fit card 268 chars
+
+Criterion 2
+impossible query stops early  (example wardrobe)
+  query: designer ballgown size XXS under $5
+[1] search_listings (via MCP)
+      in:  description='designer ballgown', size='XXS', max_price=5.0
+      out: [] (empty)
+[2] branch
+      out: [] (empty)
+      →    empty search; stopping before model tools
+  try 1: stopped early — No listings matched. Try different search words, a different
+
+Criterion 3
+selected graphic tee reaches outfit tool  (example wardrobe)
+  query: 2003 tour bootleg graphic tee size L under $24
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: lst_006 Graphic Tee — 2003 Tour Bootleg Style ($24.0), lst_033 Vintage Band Tee — Faded Grey ($19.0)
+[2] suggest_outfit
+      in:  new_item={"brand": null, "category": "tops", "colors": ["black"], "condition": "good", "description": "Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.", "id": "lst_006", "platform": "depop", "price": 24.0, "size": "L", "style_tags": ["graphic tee", "vintage", "grunge", "streetwear", "band tee"], "title": "Graphic Tee — 2003 Tour Bootleg Style"}, wardrobe_items=10
+      out: Here are two outfit suggestions featuring the new Graphic Tee and items exclusively from your wardrobe:  ### O…
+[3] create_fit_card
+      in:  outfit_suggestion='Here are two outfit suggestions featuring the new Graphic Tee and item', new_item='Graphic …
+      out: Channel total 90s grunge streetwear energy with this worn-in Graphic Tee — 2003 Tour Bootleg Style. It has the…
+  try 1: completed — fit card 201 chars
+
+Criterion 4
+fit card includes listing details  (example wardrobe)
+  query: 2003 tour bootleg graphic tee size L under $24
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: lst_006 Graphic Tee — 2003 Tour Bootleg Style ($24.0), lst_033 Vintage Band Tee — Faded Grey ($19.0)
+[2] suggest_outfit
+      in:  new_item={"brand": null, "category": "tops", "colors": ["black"], "condition": "good", "description": "Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.", "id": "lst_006", "platform": "depop", "price": 24.0, "size": "L", "style_tags": ["graphic tee", "vintage", "grunge", "streetwear", "band tee"], "title": "Graphic Tee — 2003 Tour Bootleg Style"}, wardrobe_items=10
+      out: Here is an outfit using the new Graphic Tee and pieces exclusively from your wardrobe:  **Outfit: Grunge Stree…
+[3] create_fit_card
+      in:  outfit_suggestion='Here is an outfit using the new Graphic Tee and pieces from your war', new_item='Graphic …
+      out: Channeling major grunge streetwear vibes with this super soft, worn-in look. Grab the Graphic Tee — 2003 Tour …
+  try 1: completed — fit card 159 chars
+
+Criterion 5
+search stays within price limit  (example wardrobe)
+  query: 2003 tour bootleg graphic tee size L under $24
+[1] search_listings (via MCP)
+      in:  description='2003 tour bootleg graphic tee', size='L', max_price=24.0
+      out: 2 items: lst_006 Graphic Tee — 2003 Tour Bootleg Style ($24.0), lst_033 Vintage Band Tee — Faded Grey ($19.0)
+[2] suggest_outfit
+      in:  new_item={"brand": null, "category": "tops", "colors": ["black"], "condition": "good", "description": "Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.", "id": "lst_006", "platform": "depop", "price": 24.0, "size": "L", "style_tags": ["graphic tee", "vintage", "grunge", "streetwear", "band tee"], "title": "Graphic Tee — 2003 Tour Bootleg Style"}, wardrobe_items=10
+      out: Here is an outfit using the new Graphic Tee and pieces exclusively from your wardrobe:  **Outfit: Grunge Stree…
+[3] create_fit_card
+      in:  outfit_suggestion='Here is an outfit using the new Graphic Tee and pieces exclusively fro', new_item='Graphic …
+      out: Channeling pure 2000s grunge streetwear with this faded Graphic Tee — 2003 Tour Bootleg Style. It has that eff…
+  try 1: completed — fit card 200 chars
 
 **Did it help, and how do I know:**
+
+Yes, for observability. The five search-limit tries now each print both returned prices ($24.0 and $19.0), and the outfit-tool trace prints the full new_item dictionary. The criterion scores did not change: all five remain MET (5/5). The full generated report is results/run_2026-10-08_0920_after.md, and the captured command output is results/run_2026-10-08_after_terminal.txt.
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
@@ -551,6 +634,7 @@ again."
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
 
+No criteria remain missed. All five met their original targets in both runs. There is no criterion-specific fix left to pursue; the one improvement addressed test observability rather than a behavior failure.
 
 
 <!-- ═════════════════════════════════════════════════════════════════════
