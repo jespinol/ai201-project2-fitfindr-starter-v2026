@@ -147,20 +147,80 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             session["search_results"] = call_tool(
                 "search_listings", session["parsed"]
             )
+            trace.step(
+                "search_listings (via MCP)",
+                inputs=(
+                    f"description={session['parsed']['description']!r}, "
+                    f"size={session['parsed']['size']!r}, "
+                    f"max_price={session['parsed']['max_price']!r}"
+                ),
+                returned=session["search_results"],
+            )
             if not session["search_results"]:
                 session["error"] = (
                     "No listings matched. Try different search words, a different "
                     "size, or a higher price limit."
                 )
+                trace.step(
+                    "branch",
+                    returned=session["search_results"],
+                    note="empty search; stopping before model tools",
+                )
                 return session
             session["selected_item"] = session["search_results"][0]
         elif tool_name == "suggest_outfit":
-            session["outfit_suggestion"] = suggest_outfit(
-                session["selected_item"], session["wardrobe"]
+            try:
+                session["outfit_suggestion"] = suggest_outfit(
+                    session["selected_item"], session["wardrobe"]
+                )
+            except ModelUnavailable as exc:
+                session["error"] = (
+                    f"Couldn't suggest an outfit because the model is unavailable: "
+                    f"{exc} Check the API key or try again."
+                )
+                trace.step(
+                    tool_name,
+                    inputs=(
+                        f"new_item={session['selected_item']['title']!r}, "
+                        f"wardrobe_items={len(session['wardrobe']['items'])}"
+                    ),
+                    returned=session["error"],
+                )
+                return session
+            trace.step(
+                tool_name,
+                inputs=(
+                    f"new_item={session['selected_item']['title']!r}, "
+                    f"wardrobe_items={len(session['wardrobe']['items'])}"
+                ),
+                returned=session["outfit_suggestion"],
             )
         else:
-            session["fit_card"] = create_fit_card(
-                session["outfit_suggestion"], session["selected_item"]
+            try:
+                session["fit_card"] = create_fit_card(
+                    session["outfit_suggestion"], session["selected_item"]
+                )
+            except ModelUnavailable as exc:
+                session["error"] = (
+                    f"Couldn't create a fit card because the model is unavailable: "
+                    f"{exc} Check the API key or try again."
+                )
+                trace.step(
+                    tool_name,
+                    inputs=(
+                        f"outfit_suggestion={session['outfit_suggestion'][:70]!r}, "
+                        f"new_item={session['selected_item']['title']!r}"
+                    ),
+                    returned=session["error"],
+                )
+                return session
+            trace.step(
+                tool_name,
+                inputs=(
+                    f"outfit_suggestion={session['outfit_suggestion'][:70]!r}, "
+                    f"new_item={session['selected_item']['title']!r}"
+                ),
+                returned=session["fit_card"],
             )
     return session
 

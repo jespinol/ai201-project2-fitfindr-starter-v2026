@@ -329,14 +329,33 @@ that produced it:
 **Happy path**
 
 ```
-
+1- search_listings (via MCP)
+    in:  description='vintage graphic tee', size=None, max_price=30.0
+    out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+2- suggest_outfit
+    in:  new_item='Y2K Baby Tee — Butterfly Print', wardrobe_items=10
+    out: Here are two outfit suggestions using the new Y2K baby tee and items exclusively from your wardrobe:  ### Outf…
+3- create_fit_card
+    in:  outfit_suggestion='Here are two outfit suggestions using the new Y2K baby tee and items e', new_item='Y2K Baby…
+    out: Channel total early 2000s nostalgia with this super cute Y2K Baby Tee — Butterfly Print, featuring a fitted cr…
 ```
 
 **Empty search**
 
 ```
-
+1- search_listings (via MCP)
+    in:  description='designer ballgown', size='XXS', max_price=5.0
+    out: [] (empty)
+2- branch
+    in: n/a
+    out: [] --> empty search, stopping before model tools
 ```
+
+The empty-search query returned: "No listings matched. Try different search words, a different size, or a higher price
+limit." With an empty wardrobe, the agent returned styling ideas rather than failing. When I changed one character in
+the API key, the agent said: "Couldn't suggest an outfit because the model is unavailable: The model rejected your API
+key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com. Check the API key or try
+again."
 
 **On the MCP move:** I registered search_listings in mcp_server.py and changed agent.py::run_agent to call it through mcp_client.call_tool. The server listed the expected inputs, direct and MCP calls returned the same three listing dicts, and the full query completed.
 
