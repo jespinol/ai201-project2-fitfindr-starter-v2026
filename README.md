@@ -338,10 +338,7 @@ that produced it:
 
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
-behaved differently afterwards. If the rewire didn't work, say exactly where it
-broke — the error text and the last thing that worked. That earns the point in
-full. -->
+**On the MCP move:** I registered search_listings in mcp_server.py and changed agent.py::run_agent to call it through mcp_client.call_tool. The server listed the expected inputs, direct and MCP calls returned the same three listing dicts, and the full query completed.
 
 
 
